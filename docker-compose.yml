@@ -1,0 +1,35 @@
+services:
+  postgres:
+    # timescale/timescaledb-ha includes PostGIS and TimescaleDB
+    image: timescale/timescaledb-ha:pg15-latest
+    environment:
+      POSTGRES_USER: parking_user
+      POSTGRES_PASSWORD: parking_password
+      POSTGRES_DB: parking_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://parking_user:parking_password@postgres:5432/parking_ai
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app # For hot reloading
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Prevent host node_modules from overriding container's

@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pandas
+scikit-learn
+SQLAlchemy
+psycopg2-binary
+python-dotenv
+pydantic
+geoalchemy2
+python-multipart
