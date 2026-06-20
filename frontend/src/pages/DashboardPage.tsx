@@ -88,34 +88,46 @@ export const DashboardPage: React.FC = () => {
   }, [filters]);
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
-      {/* Header */}
-      <header className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <Activity className="text-primary" size={32} />
-            AI Parking Intelligence Dashboard
+    <div className="min-h-screen bg-background text-gray-200 flex flex-col xl:flex-row font-sans">
+      
+      {/* Sidebar Layout */}
+      <aside className="w-full xl:w-80 flex-shrink-0 bg-surface/50 border-r border-gray-800 flex flex-col h-auto xl:h-screen sticky top-0 z-10 custom-scrollbar overflow-y-auto">
+        <div className="p-6 border-b border-gray-800">
+          <h1 className="text-xl font-bold text-white flex items-center gap-3">
+            <Activity className="text-primary" size={28} />
+            AI Parking Intelligence
           </h1>
-          <p className="text-gray-400 mt-1">Illegal Parking Hotspot Detection & Congestion Impact Analysis</p>
+          <p className="text-gray-400 mt-2 text-sm leading-relaxed">Illegal Parking Hotspot Detection & Congestion Impact Analysis</p>
         </div>
-      </header>
+        
+        <div className="flex-1 p-6 flex flex-col gap-8">
+          {/* Data Management Section */}
+          <section>
+            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Data Management</h2>
+            <ErrorBoundary fallbackText="Failed to load Upload component.">
+              <UploadData onUploadSuccess={fetchData} />
+            </ErrorBoundary>
+          </section>
 
-      {/* Upload CSV */}
-      <ErrorBoundary fallbackText="Failed to load Upload component.">
-        <UploadData onUploadSuccess={fetchData} />
-      </ErrorBoundary>
+          {/* Filters Section */}
+          <section className="flex-1">
+            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Filters & Controls</h2>
+            <ErrorBoundary fallbackText="Failed to load Filters.">
+              <FilterBar 
+                filters={filters} 
+                onFilterChange={setFilters} 
+                onRefresh={fetchData} 
+                lastUpdated={lastUpdated}
+                isSidebar={true}
+              />
+            </ErrorBoundary>
+          </section>
+        </div>
+      </aside>
 
-      {/* Filters */}
-      <div className="mb-6">
-        <ErrorBoundary fallbackText="Failed to load Filters.">
-          <FilterBar 
-            filters={filters} 
-            onFilterChange={setFilters} 
-            onRefresh={fetchData} 
-            lastUpdated={lastUpdated} 
-          />
-        </ErrorBoundary>
-      </div>
+      {/* Main Content */}
+      <main className="flex-1 min-w-0 p-4 md:p-6 lg:p-8 overflow-y-auto h-screen relative custom-scrollbar">
+
 
       {error && !summary ? (
         <div className="glass-panel p-8 flex flex-col items-center justify-center text-center min-h-[400px]">
@@ -216,12 +228,13 @@ export const DashboardPage: React.FC = () => {
           </div>
           
           {/* Footer */}
-          <footer className="mt-8 border-t border-gray-800 pt-6 pb-2 text-center text-sm text-gray-500">
+          <footer className="mt-8 pt-6 pb-2 text-center text-sm text-gray-500">
             <p>AI-powered illegal parking hotspot detection using geospatial clustering and congestion impact scoring.</p>
           </footer>
 
         </div>
       )}
+      </main>
     </div>
   );
 };

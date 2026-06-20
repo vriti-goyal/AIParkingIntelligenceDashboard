@@ -7,9 +7,10 @@ interface FilterBarProps {
   onFilterChange: (filters: DashboardFilters) => void;
   onRefresh: () => void;
   lastUpdated: Date;
+  isSidebar?: boolean;
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, onRefresh, lastUpdated }) => {
+export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, onRefresh, lastUpdated, isSidebar = false }) => {
   
   const handleDateRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
@@ -26,7 +27,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, o
       now.setDate(now.getDate() - 30);
       start_date = now.toISOString();
     } else {
-      // All Time
       start_date = '';
     }
     
@@ -45,12 +45,22 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, o
     return '30d';
   };
 
+  const containerClass = isSidebar 
+    ? "flex flex-col gap-4" 
+    : "glass-panel p-4 flex flex-col md:flex-row justify-between items-center gap-4";
+
+  const wrapperClass = isSidebar
+    ? "flex flex-col gap-4 w-full"
+    : "flex flex-wrap items-center gap-4 w-full md:w-auto";
+
+  const itemClass = "relative w-full";
+
   return (
-    <div className="glass-panel p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+    <div className={containerClass}>
+      <div className={wrapperClass}>
         
         {/* Police Station Dropdown */}
-        <div className="relative flex-1 min-w-[180px] md:w-48">
+        <div className={itemClass}>
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Shield size={16} className="text-gray-400" />
           </div>
@@ -67,7 +77,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, o
         </div>
 
         {/* Violation Type Dropdown */}
-        <div className="relative flex-1 min-w-[180px] md:w-48">
+        <div className={itemClass}>
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Filter size={16} className="text-gray-400" />
           </div>
@@ -85,7 +95,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, o
         </div>
 
         {/* Vehicle Type Dropdown */}
-        <div className="relative flex-1 min-w-[180px] md:w-48">
+        <div className={itemClass}>
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Car size={16} className="text-gray-400" />
           </div>
@@ -103,7 +113,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, o
         </div>
 
         {/* Date Range Dropdown */}
-        <div className="relative flex-1 min-w-[180px] md:w-48">
+        <div className={itemClass}>
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Calendar size={16} className="text-gray-400" />
           </div>
@@ -120,24 +130,25 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, o
         </div>
       </div>
 
-      <div className="flex items-center gap-4 text-sm text-gray-400 w-full md:w-auto justify-between md:justify-end">
-        <span className="hidden lg:inline">Last updated: {lastUpdated.toLocaleTimeString()}</span>
-        <div className="flex items-center gap-2">
+      <div className={`flex items-center gap-4 text-sm text-gray-400 w-full ${isSidebar ? 'flex-col items-start mt-2' : 'justify-between md:justify-end'}`}>
+        {!isSidebar && <span className="hidden lg:inline">Last updated: {lastUpdated.toLocaleTimeString()}</span>}
+        <div className={`flex items-center gap-2 ${isSidebar ? 'w-full justify-between' : ''}`}>
           <button 
             onClick={() => onFilterChange({})}
-            className="flex items-center gap-2 bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 px-4 py-2.5 rounded-lg transition-colors font-medium border border-gray-700"
+            className="flex-1 flex items-center justify-center gap-2 bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 px-4 py-2.5 rounded-lg transition-colors font-medium border border-gray-700"
             title="Reset Filters"
           >
             Reset
           </button>
           <button 
             onClick={onRefresh}
-            className="flex items-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 px-4 py-2.5 rounded-lg transition-colors font-medium border border-primary/20"
+            className="flex-1 flex items-center justify-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 px-4 py-2.5 rounded-lg transition-colors font-medium border border-primary/20"
           >
             <RefreshCcw size={16} />
             Refresh
           </button>
         </div>
+        {isSidebar && <span className="text-xs text-gray-500 w-full text-center mt-2">Last updated: {lastUpdated.toLocaleTimeString()}</span>}
       </div>
     </div>
   );

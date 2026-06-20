@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { DailyTrend } from '../types';
 import { Activity } from 'lucide-react';
 import { safeText, safeNumber } from '../utils/safe';
@@ -25,17 +25,32 @@ export const ViolationTrendChart: React.FC<ViolationTrendChartProps> = ({ data }
   }));
 
   return (
-    <div className="glass-panel p-6 h-full min-h-[300px] flex flex-col">
-      <h3 className="text-lg font-bold text-white mb-4">Daily Violation Trends</h3>
+    <div className="glass-panel p-6 h-full min-h-[300px] flex flex-col border border-gray-800/60 shadow-lg">
+      <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+        <Activity className="text-primary" size={18} />
+        Daily Violation Trends
+      </h3>
       <div className="flex-1 w-full min-h-0">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={safeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+          <AreaChart data={safeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="colorViolations" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+              </linearGradient>
+              <linearGradient id="colorResolved" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} opacity={0.4} />
             <XAxis 
               dataKey="date" 
-              stroke="#D1D5DB" 
-              fontSize={12} 
-              tickMargin={10}
+              stroke="#9CA3AF" 
+              fontSize={11} 
+              tickMargin={12}
+              tickLine={false}
+              axisLine={false}
               tickFormatter={(val) => {
                 try {
                   const date = new Date(val);
@@ -46,30 +61,33 @@ export const ViolationTrendChart: React.FC<ViolationTrendChartProps> = ({ data }
                 }
               }}
             />
-            <YAxis stroke="#D1D5DB" fontSize={12} tickMargin={10} />
+            <YAxis stroke="#9CA3AF" fontSize={11} tickMargin={12} tickLine={false} axisLine={false} />
             <Tooltip 
-              contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff', borderRadius: '8px' }}
-              itemStyle={{ color: '#E5E7EB' }}
+              contentStyle={{ backgroundColor: 'rgba(17, 24, 39, 0.9)', backdropFilter: 'blur(8px)', borderColor: '#374151', color: '#fff', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
+              itemStyle={{ color: '#E5E7EB', fontSize: '13px', fontWeight: 500 }}
+              labelStyle={{ color: '#9CA3AF', marginBottom: '4px', fontSize: '12px' }}
             />
-            <Line 
+            <Area 
               type="monotone" 
               dataKey="violations" 
-              stroke="#EF4444" 
+              stroke="#3B82F6" 
               strokeWidth={3}
-              dot={{ r: 4, fill: '#EF4444', strokeWidth: 0 }}
-              activeDot={{ r: 6 }}
+              fillOpacity={1}
+              fill="url(#colorViolations)"
+              activeDot={{ r: 6, fill: '#3B82F6', strokeWidth: 0, stroke: '#fff' }}
               name="Violations"
             />
-            <Line 
+            <Area 
               type="monotone" 
               dataKey="resolved" 
-              stroke="#10B981" 
+              stroke="#8B5CF6" 
               strokeWidth={3}
-              dot={{ r: 4, fill: '#10B981', strokeWidth: 0 }}
-              activeDot={{ r: 6 }}
+              fillOpacity={1}
+              fill="url(#colorResolved)"
+              activeDot={{ r: 6, fill: '#8B5CF6', strokeWidth: 0, stroke: '#fff' }}
               name="Resolved"
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </div>
     </div>

@@ -33,30 +33,35 @@ export const PoliceStationChart: React.FC<PoliceStationChartProps> = ({ data }) 
     .slice(0, 10);
 
   return (
-    <div className="glass-panel p-6 h-full min-h-[300px] flex flex-col">
-      <h3 className="text-lg font-bold text-white mb-4">Top 10 Police Station Workloads</h3>
+    <div className="glass-panel p-6 h-full min-h-[300px] flex flex-col border border-gray-800/60 shadow-lg">
+      <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+        <Shield className="text-accent" size={18} />
+        Top 10 Police Station Workloads
+      </h3>
       <div className="flex-1 w-full min-h-0">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={top10Data} layout="vertical" margin={{ top: 5, right: 30, left: 30, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={true} vertical={false} opacity={0.5} />
-            <XAxis type="number" stroke="#9CA3AF" fontSize={12} tick={{ fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
+          <BarChart data={top10Data} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={false} vertical={true} opacity={0.3} />
+            <XAxis type="number" stroke="#9CA3AF" fontSize={11} tick={{ fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
             <YAxis 
               dataKey="station_name" 
               type="category" 
               stroke="#9CA3AF" 
-              fontSize={12} 
+              fontSize={11} 
               width={130}
               tick={{fill: '#D1D5DB'}}
               tickLine={false}
+              axisLine={false}
             />
             <Tooltip 
-              contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff', borderRadius: '8px' }}
-              itemStyle={{ color: '#E5E7EB' }}
-              cursor={{fill: '#374151', opacity: 0.4}}
+              cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+              contentStyle={{ backgroundColor: 'rgba(17, 24, 39, 0.9)', backdropFilter: 'blur(8px)', borderColor: '#374151', color: '#fff', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
+              itemStyle={{ color: '#E5E7EB', fontSize: '13px', fontWeight: 500 }}
+              labelStyle={{ color: '#9CA3AF', marginBottom: '4px', fontSize: '12px' }}
             />
-            <Legend wrapperStyle={{ fontSize: '12px', color: '#D1D5DB' }} />
-            <Bar dataKey="active_cases" stackId="a" name="Active Cases" fill="#F59E0B" radius={[0, 0, 0, 0]} />
-            <Bar dataKey="resolved_cases" stackId="a" name="Resolved Cases" fill="#3B82F6" radius={[0, 4, 4, 0]} />
+            <Legend wrapperStyle={{ fontSize: '12px', color: '#9CA3AF', paddingTop: '10px' }} />
+            <Bar dataKey="active_cases" stackId="a" name="Active Cases" fill="#F59E0B" radius={[0, 0, 0, 0]} barSize={20} />
+            <Bar dataKey="resolved_cases" stackId="a" name="Resolved Cases" fill="#3B82F6" radius={[0, 4, 4, 0]} barSize={20} />
           </BarChart>
         </ResponsiveContainer>
       </div>

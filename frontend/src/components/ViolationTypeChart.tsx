@@ -30,31 +30,37 @@ export const ViolationTypeChart: React.FC<ViolationTypeChartProps> = ({ data }) 
   }));
 
   return (
-    <div className="glass-panel p-6 h-full min-h-[300px] flex flex-col">
-      <h3 className="text-lg font-bold text-white mb-4">Violations by Type</h3>
+    <div className="glass-panel p-6 h-full min-h-[300px] flex flex-col border border-gray-800/60 shadow-lg">
+      <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+        <BarChart2 className="text-accent" size={18} />
+        Violations by Type
+      </h3>
       <div className="flex-1 w-full min-h-0">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={safeData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={true} vertical={false} opacity={0.5} />
-            <XAxis type="number" stroke="#9CA3AF" fontSize={12} tick={{ fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
+          <BarChart data={safeData} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={false} vertical={true} opacity={0.3} />
+            <XAxis type="number" stroke="#9CA3AF" fontSize={11} tick={{ fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
             <YAxis 
               dataKey="type" 
               type="category" 
               stroke="#9CA3AF" 
-              fontSize={12}
+              fontSize={11}
               width={140}
               tick={{ fill: '#D1D5DB' }}
               tickLine={false}
+              axisLine={false}
             />
             <Tooltip 
-              contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff', borderRadius: '8px' }}
-              itemStyle={{ color: '#E5E7EB' }}
+              cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+              contentStyle={{ backgroundColor: 'rgba(17, 24, 39, 0.9)', backdropFilter: 'blur(8px)', borderColor: '#374151', color: '#fff', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
+              itemStyle={{ color: '#E5E7EB', fontSize: '13px', fontWeight: 500 }}
+              labelStyle={{ color: '#9CA3AF', marginBottom: '4px', fontSize: '12px' }}
               formatter={(value: any, _name: any, props: any) => [
-                `${safeNumber(value, 0)} (${safeNumber(props.payload?.percentage, 0).toFixed(1)}%)`,
+                `${safeNumber(value, 0).toLocaleString()} (${safeNumber(props.payload?.percentage, 0).toFixed(1)}%)`,
                 'Count'
               ]}
             />
-            <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+            <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24}>
               {safeData.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
