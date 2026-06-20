@@ -52,12 +52,7 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error("Error fetching summary:", error);
-      return {
-        total_violations: 0,
-        total_active_hotspots: 0,
-        critical_hotspots: 0,
-        high_risk_zones: 0,
-      };
+      throw error;
     }
   },
 
@@ -69,7 +64,7 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error("Error fetching hotspots:", error);
-      return [];
+      throw error;
     }
   },
 
@@ -80,7 +75,7 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error("Error fetching map points:", error);
-      return [];
+      throw error;
     }
   },
 
@@ -91,7 +86,7 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error("Error fetching daily trends:", error);
-      return [];
+      throw error;
     }
   },
 
@@ -103,7 +98,7 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error("Error fetching violation types:", error);
-      return [];
+      throw error;
     }
   },
 
@@ -115,7 +110,7 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error("Error fetching police station workload:", error);
-      return [];
+      throw error;
     }
   },
 
@@ -126,7 +121,7 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error("Error fetching recommendations:", error);
-      return [];
+      throw error;
     }
   },
 
@@ -143,7 +138,7 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error("Error fetching filter options:", error);
-      return { police_stations: [], violation_types: [], vehicle_types: [] };
+      throw error;
     }
   },
 
