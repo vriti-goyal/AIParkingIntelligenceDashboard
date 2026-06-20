@@ -10,10 +10,14 @@ from app import csv_import
 
 app = FastAPI(title="AI Parking Intelligence Dashboard API", version="1.0.0")
 
-# Enable CORS for frontend development
+# Enable CORS for frontend development and production
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust in production
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://localhost:3000",
+        "https://ai-parking-intelligence-dashboard.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
