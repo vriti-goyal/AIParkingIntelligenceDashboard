@@ -6,6 +6,7 @@ import ast
 import uuid
 import psycopg2
 from psycopg2.extras import execute_values
+from io import StringIO
 from dotenv import load_dotenv
 
 # Load .env file
@@ -114,17 +115,24 @@ def main():
                     # explicitly convert NaT to Python None
                     chunk[col] = chunk[col].apply(lambda x: None if pd.isna(x) else x)
 
-            # Find invalid coordinates
+            # Find invalid coordinates or missing timestamps
             invalid_coords_mask = chunk['latitude'].isna() | chunk['longitude'].isna()
-            invalid_count = invalid_coords_mask.sum()
+            
+            if 'created_datetime' in chunk.columns:
+                missing_dt_mask = chunk['created_datetime'].isna() | chunk['created_datetime'].isnull()
+                invalid_mask = invalid_coords_mask | missing_dt_mask
+            else:
+                invalid_mask = invalid_coords_mask
+                
+            invalid_count = invalid_mask.sum()
             invalid_coordinate_rows += invalid_count
 
             # Clean violation type
             if 'violation_type' in chunk.columns:
                 chunk['violation_type'] = chunk['violation_type'].apply(clean_violation_type)
 
-            # Filter valid rows (drop invalid coords)
-            chunk = chunk[~invalid_coords_mask]
+            # Filter valid rows (drop invalid coords and missing timestamps)
+            chunk = chunk[~invalid_mask]
 
             # Replace NaN/NaT with None for postgres
             chunk = chunk.where(pd.notnull(chunk), None)
@@ -138,92 +146,59 @@ def main():
                 print(f"Skipped so far: {rows_skipped}")
                 continue
 
-            raw_records = [tuple(x) for x in chunk[cols_to_insert].to_numpy()]
-            # Apply clean_value to every field in every row
-            records = [tuple(clean_value(val) for val in rec) for rec in raw_records]
-            
             cols_str = ', '.join(cols_to_insert)
-            
-            # Using id, created_datetime as per the existing csv_import.py models logic 
-            # to accommodate timescale partitioned PK, but we can just use id if it isn't timescale.
-            # We'll use id, created_datetime to be safe against schema requirements
             conflict_cols = 'id, created_datetime'
             
-            bulk_insert_query = f"""
-                INSERT INTO parking_violations ({cols_str})
-                VALUES %s
-                ON CONFLICT ({conflict_cols}) DO NOTHING
-            """
-            
-            placeholders = ', '.join(['%s'] * len(cols_to_insert))
-            single_insert_query = f"""
-                INSERT INTO parking_violations ({cols_str})
-                VALUES ({placeholders})
-                ON CONFLICT ({conflict_cols}) DO NOTHING
-            """
-            
             try:
-                execute_values(cursor, bulk_insert_query, records, page_size=5000)
+                # 1. Create temporary table
+                cursor.execute(f"CREATE TEMP TABLE tmp_parking_violations (LIKE parking_violations) ON COMMIT DROP;")
+                
+                # 2. Write chunk to an in-memory buffer
+                buffer = StringIO()
+                chunk[cols_to_insert].to_csv(buffer, index=False, header=False, na_rep='\\N')
+                buffer.seek(0)
+                
+                # 3. Use COPY for blazing fast import to temp table
+                cursor.copy_expert(f"COPY tmp_parking_violations ({cols_str}) FROM STDIN WITH CSV NULL '\\N'", buffer)
+                
+                # 4. Insert from temp table to actual table, handling conflicts safely
+                insert_query = f"""
+                    INSERT INTO parking_violations ({cols_str})
+                    SELECT {cols_str} FROM tmp_parking_violations
+                    ON CONFLICT ({conflict_cols}) DO NOTHING
+                """
+                cursor.execute(insert_query)
+                
+                # Drop temp table
+                cursor.execute("DROP TABLE tmp_parking_violations;")
                 raw_conn.commit()
                 rows_skipped += int(invalid_count)
+                
+            except psycopg2.errors.UniqueViolation as e:
+                # If the conflict is only on 'id', we try again with just 'id' as conflict column
+                raw_conn.rollback()
+                try:
+                    cursor.execute(f"CREATE TEMP TABLE tmp_parking_violations (LIKE parking_violations) ON COMMIT DROP;")
+                    buffer.seek(0)
+                    cursor.copy_expert(f"COPY tmp_parking_violations ({cols_str}) FROM STDIN WITH CSV NULL '\\N'", buffer)
+                    
+                    insert_query = f"""
+                        INSERT INTO parking_violations ({cols_str})
+                        SELECT {cols_str} FROM tmp_parking_violations
+                        ON CONFLICT (id) DO NOTHING
+                    """
+                    cursor.execute(insert_query)
+                    cursor.execute("DROP TABLE tmp_parking_violations;")
+                    raw_conn.commit()
+                    rows_skipped += int(invalid_count)
+                except Exception as fallback_e:
+                    raw_conn.rollback()
+                    print(f"Fallback insert error: {fallback_e}")
+                    rows_skipped += int(invalid_count) + len(chunk)
             except Exception as e:
                 raw_conn.rollback()
-                # If conflict is only on id, we might hit an error above, fallback
-                if "constraint" in str(e).lower() and "id" in str(e).lower():
-                    # Attempt a retry with just 'id' as conflict column if needed
-                    bulk_insert_query = f"""
-                        INSERT INTO parking_violations ({cols_str})
-                        VALUES %s
-                        ON CONFLICT (id) DO NOTHING
-                    """
-                    single_insert_query = f"""
-                        INSERT INTO parking_violations ({cols_str})
-                        VALUES ({placeholders})
-                        ON CONFLICT (id) DO NOTHING
-                    """
-                    try:
-                        execute_values(cursor, bulk_insert_query, records, page_size=5000)
-                        raw_conn.commit()
-                        rows_skipped += int(invalid_count)
-                    except Exception as fallback_e:
-                        raw_conn.rollback()
-                        print("Bulk database insert error:", fallback_e)
-                        print("Falling back to row-by-row insertion for failed chunk...")
-                        rows_skipped += int(invalid_count)
-                        
-                        for rec in records:
-                            try:
-                                cursor.execute(single_insert_query, rec)
-                                raw_conn.commit()
-                            except Exception as row_e:
-                                raw_conn.rollback()
-                                rows_skipped += 1
-                                if len(sample_errors) < 5:
-                                    row_data_dict = dict(zip(cols_to_insert, rec))
-                                    row_data_dict = {k: str(v) if v is not None else None for k, v in row_data_dict.items()}
-                                    sample_errors.append({
-                                        "error": str(row_e).strip(),
-                                        "row_data": row_data_dict
-                                    })
-                else:
-                    print("Bulk database insert error:", e)
-                    print("Falling back to row-by-row insertion for failed chunk...")
-                    rows_skipped += int(invalid_count)
-                    
-                    for rec in records:
-                        try:
-                            cursor.execute(single_insert_query, rec)
-                            raw_conn.commit()
-                        except Exception as row_e:
-                            raw_conn.rollback()
-                            rows_skipped += 1
-                            if len(sample_errors) < 5:
-                                row_data_dict = dict(zip(cols_to_insert, rec))
-                                row_data_dict = {k: str(v) if v is not None else None for k, v in row_data_dict.items()}
-                                sample_errors.append({
-                                    "error": str(row_e).strip(),
-                                    "row_data": row_data_dict
-                                })
+                print(f"Bulk COPY insert error: {e}")
+                rows_skipped += int(invalid_count) + len(chunk)
 
             print(f"Processed {total_rows} rows...")
             print(f"Imported so far: {total_rows - rows_skipped} (approx, excluding duplicates)")

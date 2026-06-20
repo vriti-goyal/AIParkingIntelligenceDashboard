@@ -8,9 +8,14 @@ interface FilterBarProps {
   onRefresh: () => void;
   lastUpdated: Date;
   isSidebar?: boolean;
+  filterOptions?: {
+    police_stations: string[];
+    violation_types: string[];
+    vehicle_types: string[];
+  };
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, onRefresh, lastUpdated, isSidebar = false }) => {
+export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, onRefresh, lastUpdated, isSidebar = false, filterOptions }) => {
   
   const handleDateRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
@@ -70,9 +75,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, o
             className="bg-surfaceHover border border-gray-700 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-2.5 appearance-none"
           >
             <option value="">All Police Stations</option>
-            <option value="Central District">Central District</option>
-            <option value="North District">North District</option>
-            <option value="South District">South District</option>
+            {filterOptions?.police_stations?.map(station => (
+              <option key={station} value={station}>{station}</option>
+            ))}
           </select>
         </div>
 
@@ -87,10 +92,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, o
             className="bg-surfaceHover border border-gray-700 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-2.5 appearance-none"
           >
             <option value="">All Violations</option>
-            <option value="WRONG PARKING">Wrong Parking</option>
-            <option value="PARKING NEAR ROAD CROSSING">Parking Near Road Crossing</option>
-            <option value="PARKING ON FOOTPATH">Parking on Footpath</option>
-            <option value="NO PARKING">No Parking Zone</option>
+            {filterOptions?.violation_types?.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
           </select>
         </div>
 
@@ -105,10 +109,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFilterChange, o
             className="bg-surfaceHover border border-gray-700 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-2.5 appearance-none"
           >
             <option value="">All Vehicles</option>
-            <option value="TWO WHEELER">Two Wheeler</option>
-            <option value="CAR">Car</option>
-            <option value="TRUCK">Truck</option>
-            <option value="AUTO">Auto</option>
+            {filterOptions?.vehicle_types?.map(vtype => (
+              <option key={vtype} value={vtype}>{vtype}</option>
+            ))}
           </select>
         </div>
 

@@ -5,6 +5,7 @@ from app.routes.hotspots import router as hotspots_router
 from app.routes.map_points import router as map_points_router
 from app.routes.trends import router as trends_router
 from app.routes.recommendations import router as recommendations_router
+from app.routes.filters import router as filters_router
 from app import csv_import
 
 app = FastAPI(title="AI Parking Intelligence Dashboard API", version="1.0.0")
@@ -23,6 +24,7 @@ app.include_router(hotspots_router)
 app.include_router(map_points_router)
 app.include_router(trends_router)
 app.include_router(recommendations_router)
+app.include_router(filters_router)
 app.include_router(csv_import.router, tags=["Import"])
 
 @app.on_event("startup")

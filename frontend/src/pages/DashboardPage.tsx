@@ -36,6 +36,9 @@ export const DashboardPage: React.FC = () => {
   const [violationTypes, setViolationTypes] = useState<ViolationTypeTrend[]>([]);
   const [policeWorkload, setPoliceWorkload] = useState<PoliceStationWorkload[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [filterOptions, setFilterOptions] = useState<{ police_stations: string[], violation_types: string[], vehicle_types: string[] }>({
+    police_stations: [], violation_types: [], vehicle_types: []
+  });
   const [filters, setFilters] = useState<DashboardFilters>({});
   const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +53,8 @@ export const DashboardPage: React.FC = () => {
         api.getDailyTrends(filters),
         api.getViolationTypes(filters),
         api.getPoliceStationWorkload(filters),
-        api.getRecommendations(filters)
+        api.getRecommendations(filters),
+        api.getFilterOptions()
       ]);
 
       const [
@@ -60,7 +64,8 @@ export const DashboardPage: React.FC = () => {
         trendsData, 
         typesData, 
         workloadData, 
-        recData
+        recData,
+        optionsData
       ] = results;
 
       setSummary(sumData.status === 'fulfilled' ? sumData.value : null);
@@ -70,6 +75,10 @@ export const DashboardPage: React.FC = () => {
       setViolationTypes(typesData.status === 'fulfilled' ? typesData.value : []);
       setPoliceWorkload(workloadData.status === 'fulfilled' ? workloadData.value : []);
       setRecommendations(recData.status === 'fulfilled' ? recData.value : []);
+      
+      if (optionsData.status === 'fulfilled') {
+        setFilterOptions(optionsData.value);
+      }
       
       setLastUpdated(new Date());
     } catch (err) {
@@ -119,6 +128,7 @@ export const DashboardPage: React.FC = () => {
                 onRefresh={fetchData} 
                 lastUpdated={lastUpdated}
                 isSidebar={true}
+                filterOptions={filterOptions}
               />
             </ErrorBoundary>
           </section>

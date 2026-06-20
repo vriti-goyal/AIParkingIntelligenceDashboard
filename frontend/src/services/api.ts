@@ -130,6 +130,23 @@ export const api = {
     }
   },
 
+  getFilterOptions: async (): Promise<{ police_stations: string[], violation_types: string[], vehicle_types: string[] }> => {
+    if (USE_SAMPLE_DATA) {
+      return Promise.resolve({
+        police_stations: ["Central District", "North District", "South District"],
+        violation_types: ["WRONG PARKING", "PARKING NEAR ROAD CROSSING", "PARKING ON FOOTPATH", "NO PARKING"],
+        vehicle_types: ["TWO WHEELER", "CAR", "TRUCK", "AUTO"]
+      });
+    }
+    try {
+      const response = await apiClient.get("/filters");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching filter options:", error);
+      return { police_stations: [], violation_types: [], vehicle_types: [] };
+    }
+  },
+
   uploadCSV: async (file: File): Promise<UploadResponse> => {
     const formData = new FormData();
     formData.append("file", file);
