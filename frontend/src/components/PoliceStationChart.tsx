@@ -2,7 +2,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import type { PoliceStationWorkload } from '../types';
 import { Shield } from 'lucide-react';
-import { safeText, safeNumber } from '../utils/safe';
+import { safeNumber } from '../utils/safe';
 
 interface PoliceStationChartProps {
   data: PoliceStationWorkload[];

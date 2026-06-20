@@ -34,35 +34,43 @@ This guide walks you through deploying your entire application architecture.
 
 ## Step 2: Database Setup & Data Import
 
-You have already initialized the database on Railway. Now, we import the data.
+### 1. Create the Database on Railway
+1. Go to your [Railway Dashboard](https://railway.app/).
+2. Click **New** -> **Database** -> **Add PostgreSQL**.
+3. Once it's ready, click on the PostgreSQL service -> **Data** tab or **Variables** tab to find the connection details.
+4. Look for the Public connection string, usually named `DATABASE_PUBLIC_URL` (it looks like `postgresql://postgres:...`). Copy it.
 
-### Fixing the local import error:
-Before running the import script, you need to install the required Python packages on your laptop.
-1. Open your terminal and navigate to the `backend` folder:
-   ```bash
-   cd backend
-   ```
-2. Install the required dependencies:
-   ```bash
-   pip install psycopg2-binary pandas python-dotenv
-   # (or pip install -r requirements.txt if you have it)
-   ```
-3. Run the import script:
-   ```bash
-   python import_large_csv.py
-   ```
-   *(Wait for the data to finish uploading to Railway).*
-4. Navigate back to the root directory when done:
-   ```bash
-   cd ..
-   ```
+### 2. Initialize the Database Schema
+You need to create your tables before importing data. Run this command in your terminal, replacing `YOUR_NEW_DATABASE_URL` with the connection string you just copied:
+```bash
+psql "YOUR_NEW_DATABASE_URL" -f database/init.sql
+```
+
+### 3. Import the Data
+Before running the import script, ensure your python dependencies are installed (you've already done this, but here's the command just in case):
+```bash
+cd backend
+pip install psycopg2-binary pandas python-dotenv
+```
+Next, **open `backend/import_large_csv.py`** and ensure you update it with your new `DATABASE_PUBLIC_URL` from Railway. 
+
+Then run the import script:
+```bash
+python import_large_csv.py ../data/original/parking_violations_full.csv
+```
+*(Wait for the data to finish uploading to Railway).*
+
+Navigate back to the root directory when done:
+```bash
+cd ..
+```
 
 ---
 
 ## Step 3: Deploy Backend to Railway
 
-1. Go to your [Railway Dashboard](https://railway.app/).
-2. Click **New** -> **GitHub Repo** and select your repository.
+1. Go to your [Railway Dashboard](https://railway.app/) and open the **Project** where you just created the PostgreSQL database.
+2. Click the **+ New** button (usually at the top right or within the canvas) -> select **GitHub Repo** -> and select your `AIParkingIntelligenceDashboard` repository.
 3. Configure the backend service:
    - Go to the **Settings** tab of the newly created service.
    - Under **Build**, set the **Root Directory** to `/backend`.
