@@ -229,15 +229,7 @@ def main():
             print(f"Imported so far: {total_rows - rows_skipped} (approx, excluding duplicates)")
             print(f"Skipped so far: {rows_skipped}")
 
-        # Update geography from coords
-        print("Updating geometries...")
-        update_query = """
-            UPDATE parking_violations
-            SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)::geography
-            WHERE geom IS NULL AND latitude IS NOT NULL AND longitude IS NOT NULL;
-        """
-        cursor.execute(update_query)
-        raw_conn.commit()
+
 
         # Calculate exact final imported rows
         cursor.execute("SELECT COUNT(*) FROM parking_violations")

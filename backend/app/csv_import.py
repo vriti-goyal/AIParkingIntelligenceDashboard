@@ -175,15 +175,7 @@ async def import_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
 
             logger.info(f"Processed {total_rows} rows...")
 
-        # Update geography from coords
-        logger.info("Updating geometries...")
-        update_query = """
-            UPDATE parking_violations
-            SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)::geography
-            WHERE geom IS NULL AND latitude IS NOT NULL AND longitude IS NOT NULL;
-        """
-        cursor.execute(update_query)
-        raw_conn.commit()
+
 
         # Calculate exact final imported rows
         cursor.execute("SELECT COUNT(*) FROM parking_violations")

@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String, Float, DateTime
 from app.database import Base
-from geoalchemy2 import Geometry
 
 from sqlalchemy.orm import deferred
 
@@ -10,7 +9,6 @@ class ParkingViolation(Base):
     id = Column(String, primary_key=True)
     latitude = Column(Float)
     longitude = Column(Float)
-    geom = deferred(Column(Geometry('POINT', srid=4326)))
     location = Column(String)
     vehicle_number = Column(String)
     vehicle_type = Column(String, index=True)
