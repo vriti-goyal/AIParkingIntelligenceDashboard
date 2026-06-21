@@ -7,7 +7,7 @@ from app.models import ParkingViolation
 
 router = APIRouter(prefix="/filters", tags=["Filters"])
 
-@router.get("/")
+@router.get("")
 def get_filter_options(db: Session = Depends(get_db)):
     """Returns unique values for dropdown filters."""
     
