@@ -15,8 +15,8 @@ if DATABASE_URL.startswith("postgres://"):
 # crashing with OOM when the frontend sends 6 concurrent heavy analytical queries.
 engine = create_engine(
     DATABASE_URL,
-    pool_size=2,
-    max_overflow=3,
+    pool_size=1,
+    max_overflow=0,
     pool_timeout=30,
     pool_recycle=1800
 )
