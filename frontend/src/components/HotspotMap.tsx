@@ -142,6 +142,15 @@ export const HotspotMap: React.FC<HotspotMapProps> = ({ hotspots, mapPoints, isL
           const junction = point.junction_name || "No junction";
           const station = point.police_station || "Unknown station";
           
+          let computedSeverity = point.severity;
+          if (!computedSeverity) {
+             const vType = violationType.toUpperCase();
+             if (vType.includes("PARKING NEAR ROAD CROSSING") || vType.includes("JUNCTION")) computedSeverity = "critical";
+             else if (vType.includes("WRONG PARKING") || vType.includes("FOOTPATH")) computedSeverity = "high";
+             else if (vType.includes("NO PARKING")) computedSeverity = "medium";
+             else computedSeverity = "low";
+          }
+          
           return (
             <CircleMarker
               key={`point-${point.id}`}
@@ -149,7 +158,7 @@ export const HotspotMap: React.FC<HotspotMapProps> = ({ hotspots, mapPoints, isL
               radius={4} // Small individual dots
               pathOptions={{
                 color: '#ffffff',
-                fillColor: getSeverityColor(point.severity),
+                fillColor: getSeverityColor(computedSeverity),
                 fillOpacity: 0.9,
                 weight: 1
               }}
