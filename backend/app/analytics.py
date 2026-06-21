@@ -63,8 +63,7 @@ def calculate_hotspots(
         HAVING COUNT(*) >= 5
     """
     
-    with engine.connect() as conn:
-        df = pd.read_sql(text(query_str), conn, params=params)
+    df = pd.read_sql(text(query_str), db.connection(), params=params)
     
     if df.empty:
         return []
