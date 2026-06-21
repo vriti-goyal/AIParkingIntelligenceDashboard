@@ -84,7 +84,7 @@ export const ViolationTypeChart: React.FC<ViolationTypeChartProps> = ({ data }) 
               stroke="none"
               cornerRadius={6}
             >
-              {topData.map((entry, index) => (
+              {topData.map((_, index) => (
                 <Cell 
                   key={`cell-${index}`} 
                   fill={PIE_COLORS[index % PIE_COLORS.length]} 
