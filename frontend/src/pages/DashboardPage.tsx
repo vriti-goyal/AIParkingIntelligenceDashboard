@@ -104,22 +104,28 @@ export const DashboardPage: React.FC = () => {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-background text-gray-200 flex flex-col xl:flex-row font-sans">
+    <div className="min-h-screen bg-[#060913] text-gray-200 flex flex-col xl:flex-row font-sans relative overflow-hidden">
       
+      {/* Ambient glowing background blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] rounded-full bg-accent/10 blur-[100px] pointer-events-none" />
+
       {/* Sidebar Layout */}
-      <aside className="w-full xl:w-80 flex-shrink-0 bg-surface/50 border-r border-gray-800 flex flex-col h-auto xl:h-screen sticky top-0 z-20 custom-scrollbar overflow-y-auto">
-        <div className="p-6 border-b border-gray-800">
-          <h1 className="text-xl font-bold text-white flex items-center gap-3">
-            <Activity className="text-primary" size={28} />
-            AI Parking Intelligence
+      <aside className="w-full xl:w-80 flex-shrink-0 bg-surface/30 backdrop-blur-2xl xl:border-r border-b xl:border-b-0 border-white/5 flex flex-col h-auto xl:h-screen relative xl:sticky top-0 z-20 custom-scrollbar overflow-x-hidden xl:overflow-y-auto shadow-[4px_0_24px_rgba(0,0,0,0.2)]">
+        <div className="p-4 md:p-6 border-b border-white/5 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-50" />
+          <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 flex items-center gap-3 relative z-10 tracking-tight">
+            <Activity className="text-primary drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]" size={30} />
+            AI Parking
           </h1>
-          <p className="text-gray-400 mt-2 text-sm leading-relaxed">Illegal Parking Hotspot Detection & Congestion Impact Analysis</p>
+          <p className="text-gray-400 mt-2 text-[13px] leading-relaxed hidden md:block relative z-10 font-medium">Intelligent Hotspot Detection & Congestion Analytics</p>
         </div>
         
-        <div className="flex-1 p-6 flex flex-col gap-8">
+        <div className="flex-1 p-4 md:p-6 flex flex-col gap-8">
           {/* Filters Section */}
           <section className="flex-1">
-            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Filters & Controls</h2>
+            <h2 className="text-[11px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-4">Filters & Controls</h2>
             <ErrorBoundary fallbackText="Failed to load Filters.">
               <FilterBar 
                 filters={filters} 
@@ -135,7 +141,7 @@ export const DashboardPage: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 p-4 md:p-6 lg:p-8 overflow-y-auto h-screen relative custom-scrollbar">
+      <main className="flex-1 min-w-0 p-4 md:p-6 lg:p-8 xl:overflow-y-auto h-auto xl:h-screen relative custom-scrollbar z-10">
 
         {/* Tabs Navigation */}
         <div className="mb-6 border-b border-gray-800 pb-2">
