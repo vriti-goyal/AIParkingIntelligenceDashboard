@@ -28,9 +28,9 @@ export const HotspotMap: React.FC<HotspotMapProps> = ({ hotspots, mapPoints, isL
 
     if (!level) {
       if (typeof priorityScore === "number") {
-        if (priorityScore >= 80) level = "critical";
-        else if (priorityScore >= 60) level = "high";
-        else if (priorityScore >= 40) level = "medium";
+        if (priorityScore >= 60) level = "critical";
+        else if (priorityScore >= 45) level = "high";
+        else if (priorityScore >= 30) level = "medium";
         else level = "low";
       } else {
         level = "low";
@@ -144,7 +144,7 @@ export const HotspotMap: React.FC<HotspotMapProps> = ({ hotspots, mapPoints, isL
           
           let computedSeverity = point.severity;
           if (!computedSeverity) {
-             const vType = violationType.toUpperCase();
+             const vType = violationType.toUpperCase().replace(/_/g, ' ');
              if (vType.includes("PARKING NEAR ROAD CROSSING") || vType.includes("JUNCTION")) computedSeverity = "critical";
              else if (vType.includes("WRONG PARKING") || vType.includes("FOOTPATH")) computedSeverity = "high";
              else if (vType.includes("NO PARKING")) computedSeverity = "medium";
